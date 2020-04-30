@@ -1,8 +1,9 @@
 package coinyser
 
+import cats.effect.IO
 import org.apache.spark.sql.functions.{explode, from_json}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 object BatchProducer {
 
@@ -30,4 +31,15 @@ object BatchProducer {
       .select("v.*")
       .as[HttpTransaction]
   }
+
+  import java.net.URI
+  def unsafeSave(transactions: Dataset[Transaction], path: URI): Unit =
+    transactions
+      .write
+      .mode(SaveMode.Append)
+      .partitionBy("date")
+      .parquet(path.toString)
+
+  def save(transactions: Dataset[Transaction], path: URI): IO[Unit] =
+    IO(unsafeSave(transactions, path))
 }
