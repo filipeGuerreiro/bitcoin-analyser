@@ -2,9 +2,12 @@ package coinyser
 
 import java.net.URI
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
+import cats.Monad
 import cats.effect.{IO, Timer}
+import cats.implicits._
 import org.apache.spark.sql.functions.{explode, from_json, lit}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
@@ -77,4 +80,20 @@ object BatchProducer {
 
   def currentInstant(implicit timer: Timer[IO]): IO[Instant] =
     timer.clock.realTime(TimeUnit.SECONDS) map Instant.ofEpochSecond
+
+  def processRepeatedly(lastDayTxs: IO[Dataset[Transaction]],
+                        lastHourTxs: IO[Dataset[Transaction]])
+                       (implicit appContext: AppContext): IO[Unit] = {
+    import appContext._
+    for {
+      beforeRead <- currentInstant
+      firstEnd = beforeRead.minusSeconds(ApiLag.toSeconds)
+      firstTxs <- lastDayTxs
+      firstStart = firstEnd.truncatedTo(ChronoUnit.DAYS)
+      _ <- Monad[IO].tailRecM((firstTxs, firstStart, firstEnd)) {
+        case (txs, start, instant) =>
+          processOneBatch(lastHourTxs, txs, start, instant).map(_.asLeft)
+      }
+    } yield ()
+  }
 }
