@@ -11,8 +11,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % Test classifier
     "tests",
   "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
-  "org.apache.spark" %% "spark-sql" % sparkVersion % Test classifier   "tests",
-  "org.apache.spark" %% "spark-catalyst" % sparkVersion % Test     classifier "tests",
+  "org.apache.spark" %% "spark-sql" % sparkVersion % Test classifier "tests",
+  "org.apache.spark" %% "spark-catalyst" % sparkVersion % Test classifier "tests",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
   "org.scalatest" %% "scalatest" % "3.1.1" % "test",
   "org.typelevel" %% "cats-core" % "2.1.1",
@@ -26,3 +26,7 @@ scalacOptions += "-Ypartial-unification"
 
 // Avoids SI-3623
 target := file("/tmp/sbt/bitcoin-analyser")
+
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+test in assembly := {}
+mainClass in assembly := Some("coinyser.BatchProducerAppSpark")
