@@ -13,12 +13,10 @@ class BatchProducerApp extends IOApp with StrictLogging {
 
   implicit val spark: SparkSession =
     SparkSession.builder.master("local[*]").getOrCreate()
-  implicit val appContext: AppContext = new AppContext(new
-      URI("./data/transactions"))
+  implicit val appContext: AppContext = new AppContext(new URI("./data/transactions"))
 
   def bitstampUrl(timeParam: String): URL =
-    new URL("https://www.bitstamp.net/api/v2/transactions/btcusd?time="
-      + timeParam)
+    new URL(f"https://www.bitstamp.net/api/v2/transactions/btcusd?time=$timeParam%s")
 
   def transactionsIO(timeParam: String): IO[Dataset[Transaction]] = {
     val url = bitstampUrl(timeParam)
