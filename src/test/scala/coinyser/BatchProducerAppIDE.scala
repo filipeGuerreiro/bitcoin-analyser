@@ -1,3 +1,0 @@
-package coinyser
-
-object BatchProducerAppIntelliJ extends BatchProducerApp

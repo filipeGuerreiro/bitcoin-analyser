@@ -1,10 +1,8 @@
 name := "bitcoin-analyser"
-
 version := "0.1"
-
 scalaVersion := "2.11.12"
-val sparkVersion = "2.3.1"
 
+val sparkVersion = "2.3.1"
 val framelessVersion = "0.7.0"
 
 libraryDependencies ++= Seq(
@@ -35,4 +33,4 @@ target := file("/tmp/sbt/bitcoin-analyser")
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 test in assembly := {}
-mainClass in assembly := Some("coinyser.BatchProducerAppSpark")
+mainClass in assembly := Some("coinyser.batch.BatchProducerAppSpark")

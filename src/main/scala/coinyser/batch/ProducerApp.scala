@@ -1,9 +1,11 @@
-package coinyser
+package coinyser.batch
 
 import java.net.{URI, URL}
 
 import cats.effect.{ExitCode, IO, IOApp}
-import coinyser.BatchProducer.{httpToDomainTransactions, jsonToHttpTransactions}
+import coinyser.batch.Producer.{httpToDomainTransactions, jsonToHttpTransactions}
+import coinyser.AppContext
+import coinyser.data.Transaction
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.spark.sql.{Dataset, SparkSession}
 
@@ -38,7 +40,7 @@ class BatchProducerApp extends IOApp with StrictLogging {
   val nextJsonTxs: IO[Dataset[Transaction]] = transactionsIO("hour")
 
   def run(args: List[String]): IO[ExitCode] =
-    BatchProducer.processRepeatedly(initialJsonTxs, nextJsonTxs).map(_
+    Producer.processRepeatedly(initialJsonTxs, nextJsonTxs).map(_
     => ExitCode.Success)
 }
 

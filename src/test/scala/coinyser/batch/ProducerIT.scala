@@ -1,16 +1,18 @@
-package coinyser
+package coinyser.batch
 
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 import cats.effect.{Clock, IO, Timer}
+import coinyser.AppContext
+import coinyser.data.Transaction
 import org.apache.spark.sql.test.SharedSparkSession
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.duration.{FiniteDuration, TimeUnit}
 
-class BatchProducerIT extends WordSpec with Matchers with SharedSparkSession {
+class ProducerIT extends WordSpec with Matchers with SharedSparkSession {
 
   import testImplicits._
 
@@ -25,7 +27,7 @@ class BatchProducerIT extends WordSpec with Matchers with SharedSparkSession {
       val sourceDS = Seq(transaction1, transaction2).toDS()
 
       val uri = tmpDir.toURI
-      BatchProducer.unsafeSave(sourceDS, uri)
+      Producer.unsafeSave(sourceDS, uri)
       tmpDir.list() should contain("date=2018-07-23")
       val readDS = spark.read.parquet(uri.toString).as[Transaction]
       sourceDS.collect() should contain theSameElementsAs
@@ -70,13 +72,13 @@ class BatchProducerIT extends WordSpec with Matchers with SharedSparkSession {
       val end0 = Instant.parse("2018-08-02T00:59:55Z")
       val threeBatchesIO =
         for {
-          tuple1 <- BatchProducer.processOneBatch(IO(txs1.toDS()), txs0.toDS(), start0, end0)
+          tuple1 <- Producer.processOneBatch(IO(txs1.toDS()), txs0.toDS(), start0, end0)
           (ds1, start1, end1) = tuple1
 
-          tuple2 <- BatchProducer.processOneBatch(IO(txs2.toDS()), ds1, start1, end1)
+          tuple2 <- Producer.processOneBatch(IO(txs2.toDS()), ds1, start1, end1)
           (ds2, start2, end2) = tuple2
 
-          _ <- BatchProducer.processOneBatch(IO(txs3.toDS()), ds2, start2, end2)
+          _ <- Producer.processOneBatch(IO(txs3.toDS()), ds2, start2, end2)
         } yield (ds1, start1, end1, ds2, start2, end2)
       val (ds1, start1, end1, ds2, start2, end2) = threeBatchesIO.unsafeRunSync()
 

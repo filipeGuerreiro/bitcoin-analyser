@@ -1,4 +1,4 @@
-package coinyser
+package coinyser.data
 
 import java.sql.{Date, Timestamp}
 import java.time.ZoneOffset
