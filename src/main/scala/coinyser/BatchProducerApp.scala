@@ -25,9 +25,13 @@ class BatchProducerApp extends IOApp with StrictLogging {
     val url = bitstampUrl(timeParam)
     val jsonIO = IO {
       logger.info(s"calling $url")
-      Source.fromURL(url).mkString
+      Source.fromURL(url)
     }
-    jsonIO.map(json => httpToDomainTransactions(jsonToHttpTransactions(json)))
+    jsonIO.bracket {
+      use => IO.pure { httpToDomainTransactions(jsonToHttpTransactions(use.mkString)) }
+    } { release =>
+      IO { release.close() }
+    }
   }
 
   val initialJsonTxs: IO[Dataset[Transaction]] = transactionsIO("day")
