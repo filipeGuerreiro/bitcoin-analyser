@@ -1,16 +1,16 @@
 package coinyser.batch
 
-import coinyser.data.BitmapTransaction
+import coinyser.data.BitmapHttpTransaction
 import org.apache.spark.sql._
 import org.apache.spark.sql.test.SharedSparkSession
 import org.scalatest.{Matchers, WordSpec}
 
 class ProducerSpec extends WordSpec with Matchers with SharedSparkSession {
-  val httpTransaction1: BitmapTransaction =
-    BitmapTransaction("1532365695", "70683282", "7740.00", "0",
+  val httpTransaction1: BitmapHttpTransaction =
+    BitmapHttpTransaction("1532365695", "70683282", "7740.00", "0",
       "0.10041719")
-  val httpTransaction2: BitmapTransaction =
-    BitmapTransaction("1532365693", "70683281", "7739.99", "0",
+  val httpTransaction2: BitmapHttpTransaction =
+    BitmapHttpTransaction("1532365693", "70683281", "7739.99", "0",
       "0.00148564")
 
   "BatchProducer.jsonToHttpTransaction" should {
@@ -22,7 +22,7 @@ class ProducerSpec extends WordSpec with Matchers with SharedSparkSession {
             "7739.99", "type": "0", "amount":
             "0.00148564"}]""".stripMargin
 
-      val ds: Dataset[BitmapTransaction] =
+      val ds: Dataset[BitmapHttpTransaction] =
         Producer.jsonToHttpTransactions(json)
       ds.collect() should contain theSameElementsAs
         Seq(httpTransaction1, httpTransaction2)

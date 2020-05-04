@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 
 import cats.Monad
 import cats.effect.{IO, Timer}
-import coinyser.data.{BitmapTransaction, Transaction}
+import coinyser.data.{BitmapHttpTransaction, Transaction}
 import coinyser.AppContext
 import org.apache.spark.sql.functions.{explode, from_json, lit}
 import org.apache.spark.sql.types._
@@ -15,7 +15,7 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 object Producer {
 
-  def httpToDomainTransactions(ds: Dataset[BitmapTransaction]): Dataset[Transaction] = {
+  def httpToDomainTransactions(ds: Dataset[BitmapHttpTransaction]): Dataset[Transaction] = {
     import ds.sparkSession.implicits._
     val x = ds.select(
       $"date".cast(LongType).cast(TimestampType).as("timestamp"),
@@ -29,15 +29,15 @@ object Producer {
     x
   }
 
-  def jsonToHttpTransactions(json: String)(implicit spark: SparkSession): Dataset[BitmapTransaction] = {
+  def jsonToHttpTransactions(json: String)(implicit spark: SparkSession): Dataset[BitmapHttpTransaction] = {
     import spark.implicits._
     val ds: Dataset[String] = Seq(json).toDS()
-    val txSchema: StructType = Seq.empty[BitmapTransaction].toDS().schema
+    val txSchema: StructType = Seq.empty[BitmapHttpTransaction].toDS().schema
     val schema = ArrayType(txSchema)
     val arrayColumn = from_json($"value", schema)
     ds.select(explode(arrayColumn).alias("v"))
       .select("v.*")
-      .as[BitmapTransaction]
+      .as[BitmapHttpTransaction]
   }
 
   def unsafeSave(transactions: Dataset[Transaction], path: URI): Unit =
