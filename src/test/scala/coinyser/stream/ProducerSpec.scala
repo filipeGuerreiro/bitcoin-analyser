@@ -39,7 +39,7 @@ class ProducerSpec extends WordSpec with Matchers with TypeCheckedTripleEquals {
     "register a callback that receives live trades" in {
       val pusher = new FakePusher(Vector("a", "b", "c"))
       var receivedTrades = Vector.empty[String]
-      val io = Producer.subscribe(pusher) { trade => receivedTrades = receivedTrades :+ trade }
+      val io = Producer.subscribe { trade => receivedTrades = receivedTrades :+ trade }(pusher)
       io.unsafeRunSync()
       receivedTrades should ===(Vector("a", "b", "c"))
     }

@@ -8,13 +8,15 @@ import cats.effect.IO
 import coinyser.data.{BitmapWebsocketTransaction, Transaction}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.pusher.client.Client
+import com.pusher.client.{Client, Pusher}
 import com.pusher.client.channel.SubscriptionEventListener
 import com.typesafe.scalalogging.StrictLogging
 
 object Producer extends StrictLogging {
 
-  def subscribe(pusher: Client)(onTradeReceived: String => Unit): IO[Unit] =
+  implicit val client: Client = new Pusher("**SECRET**")
+
+  def subscribe(onTradeReceived: String => Unit)(implicit pusher: Client): IO[Unit] =
     for {
       _ <- IO(pusher.connect())
       channel <- IO(pusher.subscribe("live_trades"))
