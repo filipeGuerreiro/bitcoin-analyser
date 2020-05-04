@@ -2,15 +2,18 @@ package coinyser
 
 import java.net.{URI, URL}
 
-import cats.effect.{ExitCode, IO, IOApp, Resource}
+import cats.effect.{ExitCode, IO, IOApp}
 import coinyser.BatchProducer.{httpToDomainTransactions, jsonToHttpTransactions}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.spark.sql.{Dataset, SparkSession}
 
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.io.Source
 
 class BatchProducerApp extends IOApp with StrictLogging {
 
+  implicit val executor: ExecutionContextExecutor = ExecutionContext.fromExecutor(
+    new java.util.concurrent.ForkJoinPool(2))
   implicit val spark: SparkSession =
     SparkSession.builder.master("local[*]").getOrCreate()
   implicit val appContext: AppContext = new AppContext(new URI("./data/transactions"))
@@ -20,14 +23,11 @@ class BatchProducerApp extends IOApp with StrictLogging {
 
   def transactionsIO(timeParam: String): IO[Dataset[Transaction]] = {
     val url = bitstampUrl(timeParam)
-    val sourceIO = IO {
+    val jsonIO = IO {
       logger.info(s"calling $url")
-      Source.fromURL(url)
+      Source.fromURL(url).mkString
     }
-    Resource.fromAutoCloseable(sourceIO).use(
-      s => IO(s.mkString)).map(
-      json => httpToDomainTransactions(jsonToHttpTransactions(json))
-    )
+    jsonIO.map(json => httpToDomainTransactions(jsonToHttpTransactions(json)))
   }
 
   val initialJsonTxs: IO[Dataset[Transaction]] = transactionsIO("day")

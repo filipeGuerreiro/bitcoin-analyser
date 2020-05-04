@@ -2,27 +2,27 @@ name := "bitcoin-analyser"
 
 version := "0.1"
 
-val scalaVersion = "2.12.9"
-val sparkVersion = "2.4.0"
+scalaVersion := "2.11.12"
+val sparkVersion = "2.3.1"
 
-val catsVersion = "1.6.1"
-val framelessVersion = "0.8.0"
+val framelessVersion = "0.7.0"
 
 libraryDependencies ++= Seq(
-  "org.lz4" % "lz4-java" % "1.7.1",
   "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
-  "org.apache.spark" %% "spark-core" % sparkVersion % Test classifier
-    "tests",
+  "org.apache.spark" %% "spark-core" % sparkVersion % Test classifier "tests",
+  "org.apache.spark" %% "spark-core" % sparkVersion % Test classifier "test-sources",
   "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
   "org.apache.spark" %% "spark-sql" % sparkVersion % Test classifier "tests",
+  "org.apache.spark" %% "spark-sql" % sparkVersion % Test classifier "test-sources",
   "org.apache.spark" %% "spark-catalyst" % sparkVersion % Test classifier "tests",
+  "org.apache.spark" %% "spark-catalyst" % sparkVersion % Test classifier "test-sources",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
-  "org.scalatest" %% "scalatest" % "3.1.1" % "test",
-  "org.typelevel" %% "cats-core" % catsVersion,
-  "org.typelevel" %% "cats-effect" % catsVersion,
+  "org.scalatest" %% "scalatest" % "3.0.4" % "test",
+  "org.typelevel" %% "cats-core" % "1.1.0",
+  "org.typelevel" %% "cats-effect" % "1.0.0-RC2",
   "org.apache.spark" %% "spark-streaming" % sparkVersion % Provided,
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % Provided exclude ("net.jpountz.lz4", "lz4"),
-  "com.pusher" % "pusher-java-client" % "2.2.1",
+  "com.pusher" % "pusher-java-client" % "1.8.0",
   "org.typelevel" %% "frameless-dataset" % framelessVersion,
   "org.typelevel" %% "frameless-ml"      % framelessVersion,
   "org.typelevel" %% "frameless-cats"    % framelessVersion
