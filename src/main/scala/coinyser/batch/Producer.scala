@@ -57,8 +57,8 @@ object Producer {
   def processOneBatch(fetchNextTransactions: IO[Dataset[Transaction]],
                       transactions: Dataset[Transaction],
                       saveStart: Instant,
-                      saveEnd: Instant)(implicit context: AppContext)
-  : IO[(Dataset[Transaction], Instant, Instant)] = {
+                      saveEnd: Instant)(implicit context: AppContext
+  ) : IO[(Dataset[Transaction], Instant, Instant)] = {
     import context._
     val transactionsToSave = filterTxs(transactions, saveStart, saveEnd)
     for {
@@ -86,6 +86,7 @@ object Producer {
                         lastHourTxs: IO[Dataset[Transaction]])
                        (implicit appContext: AppContext): IO[Unit] = {
     import appContext._
+    import cats.implicits._
     for {
       beforeRead <- currentInstant
       firstEnd = beforeRead.minusSeconds(ApiLag.toSeconds)
