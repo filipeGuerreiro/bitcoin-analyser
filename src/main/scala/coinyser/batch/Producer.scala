@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 import cats.Monad
 import cats.effect.{IO, Timer}
 import coinyser.data.{BitmapTransaction, Transaction}
-import coinyser.{AppContext, Transaction}
+import coinyser.AppContext
 import org.apache.spark.sql.functions.{explode, from_json, lit}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
