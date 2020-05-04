@@ -26,6 +26,8 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "frameless-cats"    % framelessVersion
 )
 
+ThisBuild / useCoursier := false
+
 scalacOptions += "-Ypartial-unification"
 
 // Avoids SI-3623
