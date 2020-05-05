@@ -29,7 +29,11 @@ The environment used to build the application is the following:
 
 Optionally, a docker environment can be automatically set up with:
 ```
-docker-compose up
+docker-compose up -d
+```
+When you are done with it, just do:
+```
+docker-compose down
 ```
 
 To build the executable, just run:
